@@ -25,14 +25,20 @@ Sistem dibangun menggunakan pendekatan *hardware-software co-design*:
 
 ## 2. Struktur Repositori
 
-    ├── README.md                  # Dokumentasi utama proyek, arsitektur, dan hasil verifikasi
-    ├── system_architecture.png    # Diagram blok arsitektur perangkat keras (Input-Process-Output)
-    ├── train_and_quantize.py      # Skrip training CNN (TrashNet) & kuantisasi bobot ke INT8
-    ├── weights_sample.mem         # Contoh file bobot heksadesimal untuk inisialisasi ROM Verilog
-    ├── mac_unit.v                 # Modul Multiply-Accumulate (MAC) 3x3 8-bit signed
-    ├── relu_activation.v          # Modul fungsi aktivasi ReLU 32-bit
-    ├── maxpool_2x2.v              # Modul Max-Pooling 2x2 komparator
-    └── tb_cnn_blocks.v            # Testbench simulasi untuk verifikasi fungsional blok RTL
+    ├── algorithm/
+    │   ├── train_and_quantize.py      # Skrip training CNN (TrashNet) & kuantisasi bobot ke INT8
+    │   └── weights_sample.mem         # Contoh file bobot heksadesimal untuk ROM Verilog
+    ├── dataset/
+    │   └── README.md                  # Informasi sumber & pra-pemrosesan dataset TrashNet
+    ├── docs/
+    │   ├── README.md                  # Indeks dokumentasi arsitektur
+    │   └── system_architecture.png    # Diagram blok arsitektur perangkat keras (Input-Process-Output)
+    ├── fpga/rtl/
+    │   ├── mac_unit.v                 # Modul Multiply-Accumulate (MAC) 3x3 8-bit signed
+    │   ├── relu_activation.v          # Modul fungsi aktivasi ReLU 32-bit
+    │   ├── maxpool_2x2.v              # Modul Max-Pooling 2x2 komparator
+    │   └── tb_cnn_blocks.v            # Testbench simulasi untuk verifikasi fungsional blok RTL
+    └── README.md                      # Dokumentasi utama proyek, arsitektur, dan hasil verifikasi
 
 ---
 
@@ -40,7 +46,7 @@ Sistem dibangun menggunakan pendekatan *hardware-software co-design*:
 
 ### A. Diagram Blok Sistem (*Input – Process – Output*)
 
-![Diagram Arsitektur Sistem](system_architecture.png)
+![Diagram Arsitektur Sistem](docs/system_architecture.png)
 
 1. **Blok Input (`input_interface`):** Menerima citra sampah 32×32 piksel *grayscale* (1.024 piksel) yang dikuantisasi ke format `signed [7:0]` (INT8) ke dalam *Input Buffer* BRAM.
 2. **Blok Process (`cnn_accelerator_core`):**
@@ -86,10 +92,10 @@ Pada tahap saat ini, pengujian difokuskan pada **verifikasi fungsional level RTL
 Untuk melatih ulang model pada dataset TrashNet dan mengekspor bobot terkuantisasi ke format `.mem`:
 
     pip install tensorflow datasets pillow numpy
-    python train_and_quantize.py
+    python algorithm/train_and_quantize.py
 
 ### B. Menjalankan Simulasi Modul RTL (Icarus Verilog)
 Untuk mereproduksi hasil verifikasi *testbench* blok `MAC`, `ReLU`, dan `Max-Pooling`:
 
-    iverilog -o sim_cnn mac_unit.v relu_activation.v maxpool_2x2.v tb_cnn_blocks.v
+    iverilog -o sim_cnn fpga/rtl/mac_unit.v fpga/rtl/relu_activation.v fpga/rtl/maxpool_2x2.v fpga/rtl/tb_cnn_blocks.v
     vvp sim_cnn
