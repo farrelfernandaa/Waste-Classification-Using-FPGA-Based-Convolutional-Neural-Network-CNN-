@@ -5,7 +5,7 @@
 ![Quantization](https://img.shields.io/badge/Precision-8--bit_Fixed--Point_(INT8)-green)
 ![Dataset](https://img.shields.io/badge/Dataset-TrashNet_(3_Classes)-lightgrey)
 
-> **Identitas Mahasiswa (Isi sebelum dikumpulkan):**
+
 > - **Nama:** Farrel Fernanda
 > - **NIM:** 1102223030
 
