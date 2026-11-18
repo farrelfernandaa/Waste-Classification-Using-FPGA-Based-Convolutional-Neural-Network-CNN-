@@ -1,3 +1,4 @@
+Farrel Fernanda / 1102223030
 # CNN-Implementation
 Klasifikasi Jenis Sampah Menggunakan CNN Berbasis FPGA
 # Abstrak
