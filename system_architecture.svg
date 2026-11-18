@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="460" viewBox="0 0 1100 460">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#334155" />
+    </marker>
+    <style>
+      .title { font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; fill: #0f172a; }
+      .sec-title { font-family: Arial, sans-serif; font-size: 14px; font-weight: bold; fill: #ffffff; }
+      .box-title { font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; fill: #1e293b; }
+      .box-sub { font-family: Arial, sans-serif; font-size: 11px; fill: #475569; }
+    </style>
+  </defs>
+
+  <rect width="1100" height="460" fill="#f8fafc" rx="10" />
+  <text x="550" y="32" text-anchor="middle" class="title">Arsitektur Sistem Klasifikasi Jenis Sampah Menggunakan CNN Berbasis FPGA (Verilog RTL)</text>
+
+  <!-- INPUT SECTION -->
+  <rect x="25" y="55" width="250" height="380" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" />
+  <rect x="25" y="55" width="250" height="34" rx="8" fill="#0284c7" />
+  <text x="150" y="77" text-anchor="middle" class="sec-title">1. BLOK INPUT</text>
+
+  <rect x="45" y="110" width="210" height="85" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+  <text x="150" y="133" text-anchor="middle" class="box-title">Akuisisi Citra Sampah</text>
+  <text x="150" y="152" text-anchor="middle" class="box-sub">Dataset TrashNet / Kamera</text>
+  <text x="150" y="168" text-anchor="middle" class="box-sub">Resize 32x32 Grayscale</text>
+  <text x="150" y="184" text-anchor="middle" class="box-sub">(1.024 Piksel / Frame)</text>
+
+  <line x1="150" y1="195" x2="150" y2="235" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="45" y="240" width="210" height="95" rx="6" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+  <text x="150" y="263" text-anchor="middle" class="box-title">Kuantisasi &amp; Antarmuka</text>
+  <text x="150" y="282" text-anchor="middle" class="box-sub">Konversi ke 8-bit Signed (INT8)</text>
+  <text x="150" y="298" text-anchor="middle" class="box-sub">Transmisi via UART RX /</text>
+  <text x="150" y="314" text-anchor="middle" class="box-sub">Inisialisasi Memori (.mem)</text>
+
+  <!-- PROCESS SECTION -->
+  <rect x="315" y="55" width="470" height="380" rx="8" fill="#dcfce7" stroke="#16a34a" stroke-width="2" />
+  <rect x="315" y="55" width="470" height="34" rx="8" fill="#16a34a" />
+  <text x="550" y="77" text-anchor="middle" class="sec-title">2. BLOK PROCESS (AKSELERATOR CNN - VERILOG RTL)</text>
+
+  <!-- Arrow Input to Process -->
+  <line x1="255" y1="287" x2="335" y2="145" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="340" y="108" width="195" height="65" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+  <text x="437" y="130" text-anchor="middle" class="box-title">Input Buffer (BRAM)</text>
+  <text x="437" y="148" text-anchor="middle" class="box-sub">Penyimpan Piksel 32x32 (8-bit)</text>
+  <text x="437" y="163" text-anchor="middle" class="box-sub">Kapasitas: 1 KB</text>
+
+  <rect x="565" y="108" width="195" height="65" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+  <text x="662" y="130" text-anchor="middle" class="box-title">Weight &amp; Bias ROM</text>
+  <text x="662" y="148" text-anchor="middle" class="box-sub">Parameter Hasil Training INT8</text>
+  <text x="662" y="163" text-anchor="middle" class="box-sub">1.203 Parameter (~1,2 KB)</text>
+
+  <line x1="437" y1="173" x2="437" y2="205" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+  <line x1="662" y1="173" x2="662" y2="290" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="340" y="210" width="195" height="60" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+  <text x="437" y="233" text-anchor="middle" class="box-title">Line Buffer &amp; Window 3x3</text>
+  <text x="437" y="251" text-anchor="middle" class="box-sub">Sliding Window Konvolusi</text>
+
+  <line x1="437" y1="270" x2="437" y2="295" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="340" y="300" width="420" height="55" rx="6" fill="#fef9c3" stroke="#ca8a04" stroke-width="1.5" />
+  <text x="550" y="322" text-anchor="middle" class="box-title">MAC Array (Multiply-Accumulate) + Control FSM</text>
+  <text x="550" y="340" text-anchor="middle" class="box-sub">Konvolusi Paralel 3x3 (Akumulator 32-bit) &amp; Pengatur State Layer</text>
+
+  <line x1="550" y1="355" x2="550" y2="375" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="340" y="378" width="420" height="45" rx="6" fill="#ffffff" stroke="#16a34a" stroke-width="1.5" />
+  <text x="550" y="398" text-anchor="middle" class="box-title">ReLU Activation &rarr; Max-Pooling 2x2 &rarr; Fully Connected (3 Kelas)</text>
+  <text x="550" y="414" text-anchor="middle" class="box-sub">Ekstraksi Fitur &amp; Perhitungan Skor Kelas Akhir</text>
+
+  <!-- OUTPUT SECTION -->
+  <rect x="825" y="55" width="250" height="380" rx="8" fill="#ffedd5" stroke="#ea580c" stroke-width="2" />
+  <rect x="825" y="55" width="250" height="34" rx="8" fill="#ea580c" />
+  <text x="950" y="77" text-anchor="middle" class="sec-title">3. BLOK OUTPUT</text>
+
+  <!-- Arrow Process to Output -->
+  <line x1="760" y1="400" x2="845" y2="160" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="845" y="110" width="210" height="95" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+  <text x="950" y="133" text-anchor="middle" class="box-title">Argmax Classifier Unit</text>
+  <text x="950" y="152" text-anchor="middle" class="box-sub">Komparator Skor Tertinggi:</text>
+  <text x="950" y="169" text-anchor="middle" class="box-sub">00: Plastik | 01: Kertas</text>
+  <text x="950" y="185" text-anchor="middle" class="box-sub">10: Logam</text>
+
+  <line x1="950" y1="205" x2="950" y2="245" stroke="#334155" stroke-width="2" marker-end="url(#arrow)" />
+
+  <rect x="845" y="250" width="210" height="105" rx="6" fill="#ffffff" stroke="#ea580c" stroke-width="1.5" />
+  <text x="950" y="273" text-anchor="middle" class="box-title">Aktuator &amp; Indikator</text>
+  <text x="950" y="293" text-anchor="middle" class="box-sub">- Sinyal PWM Motor Servo</text>
+  <text x="950" y="310" text-anchor="middle" class="box-sub">- LED / 7-Segment FPGA</text>
+  <text x="950" y="327" text-anchor="middle" class="box-sub">- Log Hasil ke PC (UART TX)</text>
+</svg>
