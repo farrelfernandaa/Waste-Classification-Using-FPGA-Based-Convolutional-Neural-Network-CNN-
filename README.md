@@ -13,18 +13,24 @@
 
 ---
 
-## Ringkasan Proyek (Abstrak)
+## 1. Deskripsi Proyek
 
-Proyek ini merancang akselerator perangkat keras *Quantized Tiny-CNN* berbasis **Field-Programmable Gate Array (FPGA)** menggunakan bahasa deskripsi perangkat keras **Verilog RTL** untuk mengklasifikasikan tiga jenis sampah anorganik utama, yaitu **Plastik, Kertas/Kardus, dan Logam**. Sistem dibangun dengan pendekatan *hardware-software co-design*, di mana proses *training* dilakukan secara *offline* di PC menggunakan dataset **TrashNet** dengan masukan citra *grayscale* berukuran **32×32 piksel**, kemudian seluruh bobot (*weights*) dan *bias* dikuantisasi menjadi bilangan bulat bertanda 8-bit (**INT8**). Arsitektur perangkat keras pada FPGA dibagi menjadi tiga blok utama: **Blok Input** (*Input Buffer* BRAM dan antarmuka data), **Blok Process** (*Weight ROM*, *Line Buffer*, *Sliding Window* 3×3, *Multiply-Accumulate Array*, aktivasi ReLU, *Max-Pooling* 2×2, *Fully Connected Layer*, serta *Control FSM*), dan **Blok Output** (unit pembanding *Argmax* serta pembangkit sinyal kontrol aktuator/indikator). Model jaringan ini hanya membutuhkan **1.203 parameter (±1,2 KB)** sehingga dapat disimpan sepenuhnya pada memori internal FPGA dengan latensi *inference* yang deterministik, rendah, dan hemat daya.
+Proyek ini merancang akselerator perangkat keras *Quantized Tiny-CNN* berbasis **Field-Programmable Gate Array (FPGA)** menggunakan bahasa deskripsi perangkat keras **Verilog RTL** untuk mengklasifikasikan tiga jenis sampah anorganik utama, yaitu **Plastik (*Plastic*), Kertas/Kardus (*Paper*), dan Logam (*Metal*)**. 
 
-**Kata Kunci:** *Convolutional Neural Network* (CNN), FPGA, Klasifikasi Sampah, Kuantisasi 8-Bit, Verilog RTL.
+Sistem dibangun menggunakan pendekatan *hardware-software co-design*:
+- **Sisi Perangkat Lunak (Python/TensorFlow):** Pelatihan model *Tiny-CNN* dilakukan secara *offline* menggunakan dataset [TrashNet (`garythung/trashnet`)](https://huggingface.co/datasets/garythung/trashnet) dengan resolusi masukan **32×32 piksel *grayscale***, kemudian seluruh bobot (*weights*) dan *bias* dikuantisasi menjadi bilangan bulat bertanda 8-bit (**INT8**).
+- **Sisi Perangkat Keras (FPGA Verilog RTL):** Proses *inference* dieksekusi langsung di level gerbang logika menggunakan memori internal FPGA (*Block RAM*) untuk mencapai waktu respons yang deterministik, berlatensi rendah (*ultra-low latency*), dan hemat daya tanpa ketergantungan pada komputasi *cloud*.
 
 ---
 
-## Arsitektur Sistem & Diagram Blok (*Input – Process – Output*)
+## 2. Struktur Repositori
 
-![Diagram Arsitektur Sistem](system_architecture.png)
-
-1. **Blok Input (`input_interface`)**
-   - **Sumber Data:** Dataset [TrashNet (`garythung/trashnet`)](https://huggingface.co/datasets/garythung/trashnet) yang disaring menjadi 3 kelas (*Plastic*, *Paper*, *Metal*), diubah ukurannya menjadi **32×32 piksel *grayscale*** (1.024 piksel), dan dikuantisasi ke format `signed [7:0]` (INT8).
-2. **Blok Process (`cnn_accelerator_core
+```text
+├── README.md                  # Dokumentasi utama proyek, arsitektur, dan hasil verifikasi
+├── system_architecture.png    # Diagram blok arsitektur perangkat keras (Input-Process-Output)
+├── train_and_quantize.py      # Skrip training CNN (TrashNet) & kuantisasi bobot ke INT8
+├── weights_sample.mem         # Contoh file bobot heksadesimal untuk inisialisasi ROM Verilog
+├── mac_unit.v                 # Modul Multiply-Accumulate (MAC) 3x3 8-bit signed
+├── relu_activation.v          # Modul fungsi aktivasi ReLU 32-bit
+├── maxpool_2x2.v              # Modul Max-Pooling 2x2 komparator
+└── tb_cnn_blocks.v            # Testbench simulasi untuk verifikasi fungsional blok RTL
